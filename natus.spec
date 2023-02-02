@@ -12,17 +12,23 @@ Version:	0.2.1
 Release:	1
 License:	MIT
 Group:		Libraries
+#Source0Download: https://github.com/Natus/natus/tags
 Source0:	http://github.com/Natus/natus/tarball/%{version}/%{name}-%{version}.tar.gz
 # Source0-md5:	c707dadb76dc7cf6e4f8c95c0cc45ca5
+Patch0:		%{name}-includes.patch
+URL:		https://github.com/Natus/natus
 BuildRequires:	autoconf >= 2.59
 BuildRequires:	automake
 %{?with_webkit:BuildRequires:	gtk-webkit3-devel}
 %if %{with spidermonkey}
-#BuildRequires:	js-devel >= 1.8  not released yet, use xulrunner for now
-BuildRequires:	xulrunner-devel >= 2.0
+# libjs >= 1.8 / xulrunner >= 2
+# builds with js185 with no modification
+# js187 fails with two errors, each later is worse
+BuildRequires:	js185-devel
 %endif
 BuildRequires:	libstdc++-devel
 BuildRequires:	libtool >= 2:2.0
+BuildRequires:	sed >= 4.0
 %{?with_v8:BuildRequires:	v8-devel}
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
@@ -54,7 +60,7 @@ Requires:	%{name} = %{version}-%{release}
 %description engine-JavaScriptCore
 JavaScriptCore JavaScript engine (used in WebKit/Safari) for Natus.
 
-%description engine-JavaScriptCore
+%description engine-JavaScriptCore -l pl.UTF-8
 Silnik JavaScriptu JavaScriptCore (używany w WebKicie/Safari) dla
 Natusa.
 
@@ -68,7 +74,7 @@ Requires:	%{name} = %{version}-%{release}
 SpiderMonkey JavaScript engine (used in Mozilla-derived browsers like
 Firefox or Seamonkey) for Natus.
 
-%description engine-SpiderMonkey
+%description engine-SpiderMonkey -l pl.UTF-8
 Silnik JavaScriptu SpiderMonkey (używany w przeglądarkach wywodzących
 się z Mozilli, np. Firefox czy Seamonkey) dla Natusa.
 
@@ -81,12 +87,15 @@ Requires:	%{name} = %{version}-%{release}
 %description engine-v8
 V8 JavaScript engine (used in Google Chrome/Chromium) for Natus.
 
-%description engine-v8
+%description engine-v8 -l pl.UTF-8
 Silnik JavaScriptu V8 (używany w przeglądarkach Google
 Chrome/Chromium) dla Natusa.
 
 %prep
 %setup -q -n Natus-%{name}-%{gitver}
+%patch0 -p1
+
+%{__sed} -i -e 's/libjs >= 1\.8/mozjs185/' configure.ac
 
 %build
 %{__libtoolize}
